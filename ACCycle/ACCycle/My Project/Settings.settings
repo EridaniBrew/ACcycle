@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
+  <Profiles />
+  <Settings>
+    <Setting Name="verbose" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="timerMsec" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">120000</Value>
+    </Setting>
+    <Setting Name="ProbeNum" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="CommPort" Type="System.String" Scope="User">
+      <Value Profile="(Default)">COM1</Value>
+    </Setting>
+    <Setting Name="BoltwoodPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\Public\Documents\ClarityII_fmt.txt</Value>
+    </Setting>
+    <Setting Name="ACCycleTempDataPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\Public\Documents\ACCycleData.txt</Value>
+    </Setting>
+    <Setting Name="LogExcelData" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="MakeWebFile" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="WebFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\Public\Documents\ACCyclegraph.png</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -1,0 +1,10 @@
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\bin\Release\ACCycle.exe.config
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\bin\Release\ACCycle.exe
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\bin\Release\ACCycle.pdb
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\bin\Release\ACCycle.xml
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\obj\Release\ACCycle.Form1.resources
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\obj\Release\ACCycle.Resources.resources
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\obj\Release\ACCycle.vbproj.GenerateResource.Cache
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\obj\Release\ACCycle.exe
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\obj\Release\ACCycle.xml
+C:\Users\robert\Documents\Programs\ArdTemperature\ACCycle\ACCycle\obj\Release\ACCycle.pdb
