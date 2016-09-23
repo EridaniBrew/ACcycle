@@ -1,4 +1,31 @@
-﻿Imports System.Threading        ' to get Sleep function?
+﻿'   ACCycle
+' Program to control my observatory air conditioner.
+' 
+' Uses the program UU.W32.exe to communicate with the Digilogger Power Controller to turn the AC power on/off.
+'
+' Operates in 3 modes:
+' Manual - user turns air conitioner on/off by clicking the button
+' 
+' Time - AC is turned on between 2 specified times
+'
+' Temperature = read temperature from an Arduino via COM Port (USB), turn the AC on if temp is above high limit, 
+'    off if below lower limit.
+'
+' Creates several outputs, depending on options selected
+'
+' Excel file (csv format) - this could be used to plot temperature over time
+'
+' Graph image - saved every morning, and every time  the graph is updated. Can be either .jpg or .png format.
+'
+' Boltwood image - used to send the current temperature back to Weather Display on the main computer.
+'
+' version 1.1.0.0 - saving the temperature limits, and the current control mode (manual, temp, time). 
+'                   When program restarts it resumes in the previous mode.
+'         1.2.0.0 - comment out graph ssaving to see if program still goes into background mode
+'         1.3.0.0 - Added log messages for manual and timed On.Off changes
+'                   Fixed date formatting
+
+Imports System.Threading        ' to get Sleep function?
 Imports System.IO
 
 Public Class Form1
@@ -66,18 +93,24 @@ Public Class Form1
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         iRunning = False
+        Dim FileVer As String = FileVersionInfo.GetVersionInfo(Application.ExecutablePath).FileVersion
+        Me.Text = Me.Text & " Version " & FileVer
         objShell = CreateObject("Shell.Application")
 
         InitializeSettings()
         InitGraphData()
         OpenSerialPort()
-        btnEnableManual_Click(sender, e)
-
         OpenDataLogFile()
-        SetACPower(False)
-        EnableTempControl(False)
-        EnableTimeControl(False)
-        EnableManualControl(True)
+
+        Select Case (controlMode)
+            Case MODE_MANUAL
+                SetACPower(False)
+                btnEnableManual_Click(sender, e)
+            Case MODE_TEMP
+                btnEnableTemp_Click(sender, e)
+            Case MODE_TIME
+                btnEnableTime_Click(sender, e)
+        End Select
 
     End Sub
 
@@ -95,6 +128,9 @@ Public Class Form1
         txtDataPath.Text = My.Settings.ACCycleTempDataPath
         cbMakeWebFile.Checked = My.Settings.MakeWebFile
         txtWebFile.Text = My.Settings.WebFilePath
+        txtHighTemp.Text = CStr(My.Settings.HighTemp)
+        txtLowTemp.Text = CStr(My.Settings.LowTemp)
+        controlMode = My.Settings.LastControlMode
     End Sub
 
     Private Sub SaveMySettings()
@@ -112,9 +148,14 @@ Public Class Form1
         My.Settings.ACCycleTempDataPath = txtDataPath.Text
         My.Settings.MakeWebFile = cbMakeWebFile.Checked
         My.Settings.WebFilePath = txtWebFile.Text
+        My.Settings.HighTemp = CDbl(txtHighTemp.Text)
+        My.Settings.LowTemp = CDbl(txtLowTemp.Text)
+        My.Settings.LastControlMode = controlMode
+        My.Settings.Save()
     End Sub
 
     Private Sub Form1_Unload(sender As Object, e As EventArgs) Handles MyBase.FormClosed
+        SaveMySettings()
         SerialPort1.Close()
         If (Not IsNothing(DataFile)) Then       ' dataFile is open
             DataFile.Close()
@@ -365,21 +406,23 @@ Public Class Form1
             normalMode = False
         End If
 
-        msg = TimeOfDay.ToString & " no change" & onSecs & " " & curSecs & " " & offSecs
+        msg = Now().ToString("MM/dd/yyyy hh:mm tt") & " no change" & onSecs & " " & curSecs & " " & offSecs
         If (((normalMode) And (curSecs <= offSecs) And (curSecs >= onSecs)) Or _
             ((Not normalMode) And (curSecs >= onSecs) And (curSecs >= offSecs))) Then
             ' needs to be on
-            msg = TimeOfDay.ToString & " Needs on " & onSecs & " " & curSecs & " " & offSecs
+            msg = Now().ToString("MM/dd/yyyy hh:mm tt") & " Needs on " & onSecs & " " & curSecs & " " & offSecs
             If (Not iRunning) Then
                 SetACPower(True)
                 msg = msg & "turned on"
+                LogMyMsg(Now().ToString("MM/dd/yyyy hh:mm tt") & " Turned ON for time")
             End If
         Else
             ' needs to be off
-            msg = TimeOfDay.ToString & " Needs off " & onSecs & " " & curSecs & " " & offSecs
+            msg = Now().ToString("MM/dd/yyyy hh:mm tt") & " Needs off " & onSecs & " " & curSecs & " " & offSecs
             If (iRunning) Then
                 SetACPower(False)
                 msg = msg & "turned off"
+                LogMyMsg(Now().ToString("MM/dd/yyyy hh:mm tt") & " Turned OFF for time")
             End If
         End If
 
@@ -415,7 +458,7 @@ Public Class Form1
         End If
 
         If (chgStr <> "") Then
-            logStr = TimeOfDay.ToString & ": " & degF & chgStr
+            logStr = Now().ToString("MM/dd/yyyy hh:mm tt") & ": " & degF & chgStr
             LogMyMsg(logStr)
         End If
     End Sub
@@ -518,15 +561,17 @@ Public Class Form1
 
     Private Sub btnTurnOn_Click(sender As Object, e As EventArgs) Handles btnTurnOn.Click
         SetACPower(True)
+        LogMyMsg(Now().ToString("MM/dd/yyyy hh:mm tt") & " Manually Turned ON")
     End Sub
 
     Private Sub btnTurnOff_Click(sender As Object, e As EventArgs) Handles btnTurnOff.Click
         SetACPower(False)
+        LogMyMsg(Now().ToString("MM/dd/yyyy hh:mm tt") & " Manually Turned OFF")
     End Sub
 
     Private Sub btnOptionSave_Click(sender As Object, e As EventArgs) Handles btnOptionSave.Click
         SaveMySettings()
-        My.Settings.Save()
+
 
         ' apply changes
         OpenSerialPort()
@@ -661,7 +706,7 @@ Public Class Form1
 
         chData.Refresh()
         chData.Update()
-        SaveTheGraph()
+        SaveTheGraph()         ' Maybe this is causing program to become background process?
     End Sub
 
     ' routine to save the graph to disc for web site display
@@ -706,9 +751,9 @@ Public Class Form1
         If (myFileInfo.Exists) Then
             myFileInfo.Delete()
         End If
-        bm.Save(filePath, myFmt)
+        'bm.Save(filePath, myFmt)
 
-        ' If between 7:00-7:05AM, save the day's graph
+        ' If after 7:00AM and dayfile does not exist, save the day's graph
         Dim timeNow As Date = Now().ToLocalTime
 
         If (timeNow.Hour >= 7) Then
@@ -720,7 +765,7 @@ Public Class Form1
             myFileInfo = Nothing
             myFileInfo = New FileInfo(dayFileName)
             If (Not myFileInfo.Exists) Then
-                bm.Save(dayFileName, myFmt)
+                'bm.Save(dayFileName, myFmt)  ' seems to cause hang?
             End If
         End If
 

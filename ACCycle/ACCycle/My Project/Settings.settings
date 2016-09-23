@@ -29,5 +29,14 @@
     <Setting Name="WebFilePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Users\Public\Documents\ACCyclegraph.png</Value>
     </Setting>
+    <Setting Name="HighTemp" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">88</Value>
+    </Setting>
+    <Setting Name="LowTemp" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">82</Value>
+    </Setting>
+    <Setting Name="LastControlMode" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">3</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
