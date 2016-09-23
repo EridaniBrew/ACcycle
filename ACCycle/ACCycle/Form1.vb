@@ -751,7 +751,7 @@ Public Class Form1
         If (myFileInfo.Exists) Then
             myFileInfo.Delete()
         End If
-        'bm.Save(filePath, myFmt)
+        bm.Save(filePath, myFmt)
 
         ' If after 7:00AM and dayfile does not exist, save the day's graph
         Dim timeNow As Date = Now().ToLocalTime
@@ -780,6 +780,10 @@ Public Class Form1
 
         ' change the timer
         Timer1.Interval = CLng(txtTimerValue.Text)
+    End Sub
+
+    Private Sub btnCreateImg_Click(sender As Object, e As EventArgs) Handles btnCreateImg.Click
+        SaveTheGraph()
     End Sub
 
     Sub RecalculateGraphMinimum()
